@@ -1,0 +1,126 @@
+<html>
+<head>
+  <title>
+    PID!
+  </title>
+  <style type="text/css">
+    body {
+      font-family: monospace;
+      font-size: x-large;
+    }
+  </style>
+  <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script type="text/javascript">
+    var dt = 0.1;
+    var width = 100;
+    var mark = 10;
+    var ke = 0.1;
+    var kie = 0.1;
+    var kde = 0.1;
+    var t = 0;
+    var a = -1.4;
+    var v = 4;
+    var s = 45;
+    var errorInt = 0;
+    var error = 50-s;
+    function reset() {
+      t = 0;
+      a = -1.4;
+      v = 4;
+      s = 45;
+      errorInt = 0;
+      error = 50-s;
+    }
+    window.setInterval(function() {
+      var ke = document.getElementById("rke").value/100;
+      var kie = document.getElementById("rkie").value/100;
+      var kde = document.getElementById("rkde").value/100;
+      t += dt;
+      var delError = ((50-s) - error)/dt;
+      error = 50-s;
+      errorInt += error*dt;
+      a = ke*error + kie*errorInt + kde*delError;
+      t += dt;
+      v += a*dt;
+      s += v*dt;
+      var graph = "";
+      for (var i = 0; i < 100; i++) {
+        if (i == Math.round(s)) {
+          graph += "@";
+        }
+        else if (i == Math.round(width/2)){
+          graph += "8"
+        }
+        else if (i % mark == 0){
+          graph += "|"
+        }
+        else {
+          graph += ".";
+        }
+      }
+      graph += "|";
+      document.getElementById("graph").textContent = graph;
+      document.getElementById("ke").textContent = "ke: " + ke;
+      document.getElementById("kie").textContent = "ki: " + kie;
+      document.getElementById("kde").textContent = "kd: " + kde;
+      document.getElementById("error").textContent 
+        = "e \xa0= " + error.toFixed(2);
+      document.getElementById("errorInt").textContent
+        = "∫e = " + errorInt.toFixed(2);
+      document.getElementById("delError").textContent
+        = "de = " + delError.toFixed(2);
+      document.getElementById("time").textContent 
+        = "time \xa0= " + t.toFixed(2);
+      document.getElementById("accel").textContent
+        = "accel = " + a.toFixed(2);
+      document.getElementById("vel").textContent
+        = "vel \xa0\xa0= " + v.toFixed(2);
+      document.getElementById("disp").textContent
+        = "disp \xa0= " + s.toFixed(2);
+    }, 1000*dt*0.4);
+  </script>
+</head>
+<body>
+  <h1>Proportional–Integral–Derivative (PID) Controller</h1>
+  <h2>By Matthew Kuss</h2>
+  <a href="https://en.wikipedia.org/wiki/PID_controller">https://en.wikipedia.org/wiki/PID_controller</a>
+  <p>The system simulated below consists of a single an object, denoted by "@", which is constrained to move within a one-dimensional space. The object begins with an initial velocity rightwards of 4 m/s, and is fitted with a PID controller. Each dot in the graphic represents one meter of space, with the vertical bars denoting ten meter intervals. The "8" marks the setpoint, which the PID controller will attempt to stabilize the object around.</p>
+  <p>The PID controller uses an error function (the displacement between the setpoint and the object, in this simulation) bring the systems to a stable state. The acceleration of the object (provided entirely by the PID controller) is determined by the following function:
+  \[
+    a(t) = k_e e(t) + k_i\int_0^t e(x)dx + k_d\frac{de(t)}{dt},
+  \]
+  where the error function \(e\) is given by \(e(t) = s_0 - s\), \(s_0\) is the setpoint displacement, \(s\) is the current displacement. Note that the error function is used in three different ways (matching up with the three letters in PID). The three coefficients \(k_e\), \(k_i\), and \(k_d\) determine the contribution from the proportional, integral, and derivative components of the acceleration.
+  </p>
+  <p>
+  Note the following:
+  <ul>
+   <li>In the absence of any control (all coefficients at zero) the object will drift to the right.</li>
+   <li>With only proportional control, the system oscillates indefinitely in a <a href="https://en.wikipedia.org/wiki/Marginal_stability">marginally stable state</a>.</li>
+   <li>A large integral control will cause the system to become unstable (the object will eventually fly out the screen).</li>
+   <li>The derivative control will allow the system to stabilize on the setpoint.</li>
+  </ul>
+  </p>
+  <p>
+  <div id="graph"></div>
+  </p>
+  <p></p>
+  <input type="button" id="reset" onclick="reset()" value="Reset">
+  <h3>Settings</h3>
+  <input type="range" id="rke" value="20">
+  <div id="ke"></div>
+  <input type="range" id="rkie" value="0">
+  <div id="kie"></div>
+  <input type="range" id="rkde" value="0">
+  <div id="kde"></div>
+  <p></p>
+  <div id="error"></div>
+  <div id="errorInt"></div>
+  <div id="delError"></div>
+  <p></p>
+  <div id="time"></div>
+  <div id="accel"></div>
+  <div id="vel"></div>
+  <div id="disp"></div>
+</body>
